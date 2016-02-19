@@ -28,6 +28,8 @@ func GetClient() (client *gh.Client, err error) {
 		}
 	}
 
+	client = gh.NewClient(nil)
+
 	//ts := oauth2.TokenSource{Token: &oauth2.Token{AccessToken: config.Shortname}}
 	/*oauth2.ReuseTokenSource(t, src)
 
@@ -68,7 +70,7 @@ func CreateIssues(issues []database.Issue) (newIssues []database.Issue, err erro
 		//msg, err := issue.DB.Message.Value()
 		//title := fmt.Sprintf("[#%d %s] %s", issue.DB.Id, issue.DB.My_name, msg[0:25])
 		//newIssue.Title = &title
-		newIssue, _, newErr := client.Issues.Create("Xackery", "xackery/rebuildeq", newIssueRequest)
+		newIssue, _, newErr := client.Issues.Create("Xackery", "rebuildeq", newIssueRequest)
 		if newErr != nil {
 			err = newErr
 			return
