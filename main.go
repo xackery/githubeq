@@ -1,33 +1,26 @@
 package main
 
 import (
+	"github.com/xackery/eqemuconfig"
 	"github.com/xackery/githubeq/service"
-	//"github.com/xackery/githubeq/github"
 	"log"
 )
 
 func main() {
-	err := service.Start()
+	config, err := eqemuconfig.GetConfig()
+	if err != nil {
+		log.Println("Failed to get config:", err.Error())
+		return
+	}
+	if config.Github.RepoUser == "" {
+		log.Println("Github not set in eqemuconfig.xml!")
+		return
+	}
+	//TODO: Sanity checks for all eqemuconfig options
+
+	err = service.Start()
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
-	/*client, err := github.GetClient()
-	if err != nil {
-		log.Println(err.Error())
-		return
-	}
-	issues, resp, err := client.Issues.List(true, nil)
-	if err != nil {
-		log.Println("Error with listing issues:", err.Error())
-		return
-	}*/
-
-	//log.Println(resp)
-	//log.Println(issues)
-
-	//for _, issue := range issues {
-	//		issue.Number
-	//	}
-
 }

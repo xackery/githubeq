@@ -39,29 +39,43 @@ func GetClient() (client *gh.Client, err error) {
 			return
 		}
 	}
+	//return client
 	ts := &TokenSource{AccessToken: config.Github.PersonalAccessToken}
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 	client = gh.NewClient(tc)
-	/*user, _, err := client.Users.Get("")
+	return
+}
+
+func GetUpdatesOnIssues(issues []database.Issue) (newIssues []database.Issue, err error) {
+	if config == nil {
+		config, err = eqemuconfig.GetConfig()
+		if err != nil {
+			fmt.Errorf("Error getting eqemuconfig: %s", err.Error())
+			return
+		}
+	}
+
+	client, err := GetClient()
 	if err != nil {
-		fmt.Printf("client.Users.Get() faled with '%s'\n", err)
 		return
-	}*/
-	//fmt.Println(user)
+	}
+
+	for _, issue := range issues {
+		newIssue, resp, newErr := client.Issues.Get(config.Github.RepoUser, config.Github.RepoName, issue.DB.Github_issue_id)
+		if newErr != nil {
+			fmt.Println(resp)
+			err = fmt.Errorf("Failed to request issues: %s", newErr.Error())
+			return
+		}
+
+		if newIssue.UpdatedAt.Before(issue.DB.Last_modified) {
+			continue
+		}
+
+		issue.Github = newIssue
+		newIssues = append(newIssues, issue)
+	}
 	return
-	//ts := oauth2.TokenSource{Token: &oauth2.Token{AccessToken: config.Shortname}}
-	/*oauth2.ReuseTokenSource(t, src)
-
-	ts := &oauth2.Token{AccessToken: config.Shortname}
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
-
-
-	client = gh.NewClient(tc)
-	authClient = client*/
-	return
-	//ts := oauth2.StaticTokenSource()
-	//client := gh.NewClient(nil)
-
 }
 
 func CreateIssues(issues []database.Issue) (newIssues []database.Issue, err error) {
@@ -106,7 +120,7 @@ func CreateIssues(issues []database.Issue) (newIssues []database.Issue, err erro
 
 		db := issue.DB
 		//Create body
-		body := fmt.Sprintf("%s\n", db.Message)
+		body := fmt.Sprintf("**Message:** %s\n", db.Message)
 		body = fmt.Sprintf("%s **User:** %s (cid: %d, accid: %d, client: %s) at %s\n", body, db.My_name, db.My_character_id, db.My_account_id, db.Client, db.Create_date.Format(time.RFC822))
 		body = fmt.Sprintf("%s **Location:** %f, %f, %f (zone: %d)\n", body, db.My_x, db.My_y, db.My_z, db.My_zone_id)
 		if db.Tar_is_client > 0 {
@@ -133,6 +147,5 @@ func CreateIssues(issues []database.Issue) (newIssues []database.Issue, err erro
 		newIssues = append(newIssues, issue)
 		return
 	}
-	//req.Milestone
 	return
 }
