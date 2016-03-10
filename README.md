@@ -23,8 +23,8 @@ Edit eqemu_config.xml to add github entry.
 //Add this:
 <github personalaccesstoken="" repouser="" reponame="" issuelabel="ingame" characterlabel="character" npclabel="npc" itemlabel="item" refreshrate="120"/>
 ```
-* Log in to github, and click your profile on the top right to access the drop down, and go to settings.
-* Look for the `Personal access tokens` tab on the left sidebar menu.
+* Log in to github, and click your profile on the top right to access the drop down, and go to settings. (Or click [here](https://github.com/settings/profile))
+* Look for the `Personal access tokens` tab on the left sidebar menu (or click [here](https://github.com/settings/tokens))
 * Click the `Generate new token` button on the top right.
 * Enter your password to github.
 * Enter in a generic description, like "Used for eq #issue system", and select the scopes `repo, repo:status, repo_deployment, public_repo`, and `read:repo_hook`.
