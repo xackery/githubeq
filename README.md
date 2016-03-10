@@ -279,6 +279,8 @@ std::string CreateSayLink(const char* message, const char* name);
 * Compile your source code, and run. In game, you should now be able to type #issue, and report something with #issue SomeText Here.
 
 
-Run githubeq.exe
+Download and run githubeq.exe
 ---
-In the same directory your eqemu_config.xml file resides, run githubeq.exe (or githubeq if linux/osx) and it should see the github config options.
+* This standalone file handles the syncronizations between in game and github. 
+* [Download githubeq for your server version by clicking this link](https://github.com/Xackery/githubeq/releases)
+* Copy the downloaded file to the same directory your eqemu_config.xml file resides, and run githubeq.exe (or githubeq if linux/osx) and it should see the github config options and load up.
