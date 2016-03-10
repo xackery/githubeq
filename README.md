@@ -1,5 +1,5 @@
-# githubeq
-Syncs github with EQ's #issue system
+# GithubEQ - Turn Everquest in game #issue command into a Github Issues tracking system!
+
 
 Requirements
 ---
