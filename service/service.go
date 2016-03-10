@@ -20,8 +20,10 @@ func Start() (err error) {
 		return
 	}
 
+	log.Println("Started GithubEQ v0.1")
+
 	for {
-		time.Sleep(1 * time.Second)
+		time.Sleep(time.Duration(config.Github.RefreshRate) * time.Second)
 		var issues []database.Issue
 
 		//=== Get Old Issues, and sync it with Github ===
@@ -52,9 +54,6 @@ func Start() (err error) {
 			return
 		}
 
-		if len(issues) < 1 {
-			return
-		}
 		log.Printf("[DB] %d new issues", len(issues))
 
 		issues, err = github.CreateIssues(issues)
@@ -70,8 +69,6 @@ func Start() (err error) {
 			fmt.Errorf("Issues upding DB with github changes: %s", err.Error())
 			return
 		}
-		log.Println("Done!")
-		return
 	}
 
 	return

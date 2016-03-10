@@ -145,7 +145,6 @@ func CreateIssues(issues []database.Issue) (newIssues []database.Issue, err erro
 
 		issue.Github = newIssue
 		newIssues = append(newIssues, issue)
-		return
 	}
 	return
 }

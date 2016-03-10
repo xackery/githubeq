@@ -13,7 +13,11 @@ func main() {
 		return
 	}
 	if config.Github.RepoUser == "" {
-		log.Println("Github not set in eqemuconfig.xml!")
+		log.Println("Github user not set in eqemuconfig.xml")
+		return
+	}
+	if config.Github.RefreshRate < 1 {
+		log.Println("Invalid or not placed Github RefreshRate entry in eqemuconfig.xml")
 		return
 	}
 	//TODO: Sanity checks for all eqemuconfig options
