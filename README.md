@@ -6,6 +6,9 @@
 - GMs can close and manage them inside github:
 
 ![Issue In Github](http://i.imgur.com/oxxs9uN.png)
+- And see their details like this:
+ 
+![Issue Detail in Github](http://i.imgur.com/HgksxNZ.png)
 
 Requirements
 ---
