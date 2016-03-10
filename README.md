@@ -1,6 +1,11 @@
 # GithubEQ
-- Turn Everquest in game #issue command into a Github Issues tracking system!
+- Turns Everquest in game #issue command into a Github Issues tracking system!
+- Players can create and manage reported issues:
 
+![Issue In Game](http://i.imgur.com/blOKa6n.png)
+- GMs can close and manage them inside github:
+
+![Issue In Github](http://i.imgur.com/oxxs9uN.png)
 
 Requirements
 ---
