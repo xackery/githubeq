@@ -16,9 +16,11 @@ Requirements
 
 Edit eqemu_config.xml to add github entry.
 ---
-* Add the following entries to eqemu_config.xml, near the bottom before </server>
-
+* Add the following entries to eqemu_config.xml
 ```
+//Before this line
+</server>
+//Add this:
 <github personalaccesstoken="" repouser="" reponame="" issuelabel="ingame" characterlabel="character" npclabel="npc" itemlabel="item" refreshrate="120"/>
 ```
 * Log in to github, and click your profile on the top right to access the drop down, and go to settings.
