@@ -219,6 +219,12 @@ void command_issue(Client *c, const Seperator *sep);
 zone/client.cpp
 ```
 Search for:
+#include <stdio.h>
+
+Add After:
+#include "../common/say_link.h"
+
+Search for:
 void Client::SendHPUpdateMarquee(){
 
 Add After:
@@ -232,8 +238,8 @@ std::string Client::CreateSayLink(const char* message, const char* name) {
 	uint32 saylink_id = database.LoadSaylinkID(escaped_string);
 	safe_delete_array(escaped_string);
 
-	EQEmu::saylink::SayLinkEngine linker;
-	linker.SetLinkType(linker.SayLinkItemData);
+	EQEmu::SayLinkEngine linker;
+	linker.SetLinkType(EQEmu::saylink::SayLinkItemData);
 	linker.SetProxyItemID(SAYLINK_ITEM_ID);
 	linker.SetProxyAugment1ID(saylink_id);
 	linker.SetProxyText(name);
