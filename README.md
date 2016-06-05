@@ -216,6 +216,40 @@ Add After:
 void command_issue(Client *c, const Seperator *sep);
 ```
 
+zone/client.cpp
+```
+Search for:
+void Client::SendHPUpdateMarquee(){
+
+Add After:
+//Creates a say link from client perspective
+std::string Client::CreateSayLink(const char* message, const char* name) {
+	int saylink_size = strlen(message);
+	char* escaped_string = new char[saylink_size * 2];
+
+	database.DoEscapeString(escaped_string, message, saylink_size);
+
+	uint32 saylink_id = database.LoadSaylinkID(escaped_string);
+	safe_delete_array(escaped_string);
+
+	EQEmu::saylink::SayLinkEngine linker;
+	linker.SetLinkType(linker.SayLinkItemData);
+	linker.SetProxyItemID(SAYLINK_ITEM_ID);
+	linker.SetProxyAugment1ID(saylink_id);
+	linker.SetProxyText(name);
+
+	auto saylink = linker.GenerateLink();
+	return saylink;
+}
+```
+
+zone/client.h
+```
+Search for:
+void SendHPUpdateMarquee();
+Add After:
+std::string CreateSayLink(const char* message, const char* name);
+```
 
 
 * Compile your source code, and run. In game, you should now be able to type #issue, and report something with #issue SomeText Here.
