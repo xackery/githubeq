@@ -91,8 +91,10 @@ Add the command_issue function
 void command_size(Client *c, const Seperator *sep)
 
 //Add this code right BEFORE:
+
 void command_issue(Client *c, const Seperator *sep) {
 
+	//Get the unclaimed_encounter_rewards
 	if (sep->arg[1] && strcasecmp(sep->arg[1], "delete") == 0) { //Delete an issue
 		if (!sep->arg[2] || atoi(sep->arg[2]) == 0) {
 			c->Message(0, "Invalid issue id. Format: #issue delete <number>");
@@ -162,7 +164,7 @@ void command_issue(Client *c, const Seperator *sep) {
 
 	std::string itemname = "";
 	uint32 itemid = 0;
-	auto inst = c->GetInv()[MainCursor];
+	auto inst = c->GetInv()[EQEmu::legacy::SlotCursor];
 	if (inst) { 
 		auto item = inst->GetItem();
 		if (item) {
@@ -171,21 +173,11 @@ void command_issue(Client *c, const Seperator *sep) {
 		}
 	}
 
-	std::string clientversion = "";
-	
-	if (c->GetClientVersion() == ClientVersion::Titanium) clientversion = "Titanium";
-	else if (c->GetClientVersion() == ClientVersion::SoF) clientversion = "SoF";
-	else if (c->GetClientVersion() == ClientVersion::SoD) clientversion = "SoD";
-	else if (c->GetClientVersion() == ClientVersion::UF) clientversion = "Underfoot";
-	else if (c->GetClientVersion() == ClientVersion::UF) clientversion = "UF";
-	else if (c->GetClientVersion() == ClientVersion::RoF) clientversion = "RoF";
-	else if (c->GetClientVersion() == ClientVersion::RoF2) clientversion = "RoF2";
-	else clientversion = "Unknown";
 	
 	std::string query = StringFormat("INSERT INTO issues"
 		"(my_name, my_account_id, my_character_id, my_zone_id, my_x, my_y, my_z, message, tar_name, tar_is_npc, tar_is_client, tar_account_id, tar_character_id, tar_npc_type_id, tar_npc_spawngroup_id, item_id, item_name, client)"
 		"VALUES (\"%s\", %u, %u, %u, %f, %f, %f, \"%s\", \"%s\", %u, %u, %u, %u, %u, %u, %u, \"%s\", \"%s\")",
-		EscapeString(c->GetName()).c_str(),
+		StringFormat("%s (%s)", c->GetName(), c->Identity()).c_str(),
 		c->AccountID(),
 		c->CharacterID(),
 		c->GetZoneID(),
@@ -202,7 +194,7 @@ void command_issue(Client *c, const Seperator *sep) {
 		((c->GetTarget() == nullptr || !c->GetTarget()->IsNPC()) ? 0 : c->GetTarget()->CastToNPC()->GetSp2()),
 		itemid,
 		EscapeString(itemname.c_str()).c_str(),
-		EscapeString(clientversion.c_str()).c_str()
+		EQEmu::versions::ClientVersionName(c->ClientVersion())
 		);
 	auto results = database.QueryDatabase(query);
 	if (!results.Success()) {
@@ -224,61 +216,6 @@ Add After:
 void command_issue(Client *c, const Seperator *sep);
 ```
 
-zone/client.cpp
-```
-//Search for any function, and paste this
-
-//Creates a say link from client perspective
-std::string Client::CreateSayLink(const char* message, const char* name) {
-	int sayid = 0;
-	int sz = strlen(message);
-	char *escaped_string = new char[sz * 2];
-	database.DoEscapeString(escaped_string, message, sz);
-	std::string query = StringFormat("SELECT `id` FROM `saylink` WHERE `phrase` = '%s'", escaped_string);
-	auto results = database.QueryDatabase(query);
-	if (results.Success()) {
-		if (results.RowCount() >= 1) {
-			for (auto row = results.begin(); row != results.end(); ++row)
-				sayid = atoi(row[0]);
-		}
-		else {
-			std::string insert_query = StringFormat("INSERT INTO `saylink` (`phrase`) VALUES ('%s')", escaped_string);
-			results = database.QueryDatabase(insert_query);
-			if (!results.Success()) {
-				Log.Out(Logs::General, Logs::Error, "Error in saylink phrase queries", results.ErrorMessage().c_str());
-			}
-			else {
-				results = database.QueryDatabase(query);
-				if (results.Success()) {
-					if (results.RowCount() >= 1)
-						for (auto row = results.begin(); row != results.end(); ++row)
-							sayid = atoi(row[0]);
-				}
-				else
-					Log.Out(Logs::General, Logs::Error, "Error in saylink phrase queries", results.ErrorMessage().c_str());
-			}
-		}
-	}
-	safe_delete_array(escaped_string);
-
-	Client::TextLink linker;
-	linker.SetLinkType(linker.linkItemData);
-	linker.SetProxyItemID(SAYLINK_ITEM_ID);
-	linker.SetProxyAugment1ID(sayid);
-	linker.SetProxyText(name);
-
-	auto say_link = linker.GenerateLink();
-	return say_link;
-}
-```
-
-zone/client.h
-```
-//Find this line:
-void SendHPUpdateMarquee();
-//Paste this below it:
-std::string CreateSayLink(const char* message, const char* name);
-```
 
 
 * Compile your source code, and run. In game, you should now be able to type #issue, and report something with #issue SomeText Here.
