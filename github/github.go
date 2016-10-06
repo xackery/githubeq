@@ -121,8 +121,8 @@ func CreateIssues(issues []database.Issue) (newIssues []database.Issue, err erro
 		db := issue.DB
 		//Create body
 		body := fmt.Sprintf("**Message:** %s\n", db.Message)
-		body = fmt.Sprintf("%s **User:** %s (cid: %d, accid: %d, client: %s) at %s\n", body, db.My_name, db.My_character_id, db.My_account_id, db.Client, db.Create_date.Format(time.RFC822))
-		body = fmt.Sprintf("%s **Location:** #zone %d, %f, %f, %f\n", body, db.My_zone_id, db.My_x, db.My_y, db.My_z)
+		body = fmt.Sprintf("%s **User:** %s (%s) (cid: %d, accid: %d, client: %s) at %s\n", body, db.My_name, db.My_class, db.My_character_id, db.My_account_id, db.Client, db.Create_date.Format(time.RFC822))
+		body = fmt.Sprintf("%s **Location:** #zone %d, %f, %f, %f\n", body, db.My_zone_name, db.My_zone_id, db.My_x, db.My_y, db.My_z)
 		if db.Tar_is_client > 0 {
 			body = fmt.Sprintf("%s **Target:** Client %s (cid: %d, accid: %d)\n", body, db.Tar_name, db.Tar_character_id, db.Tar_account_id)
 		} else if db.Tar_is_npc > 0 {
