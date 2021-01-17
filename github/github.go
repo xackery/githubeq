@@ -1,13 +1,16 @@
 package github
 
 import (
+	"context"
 	"fmt"
+
 	gh "github.com/google/go-github/github"
 	"github.com/xackery/eqemuconfig"
 	"github.com/xackery/githubeq/database"
 
-	"golang.org/x/oauth2"
 	"time"
+
+	"golang.org/x/oauth2"
 )
 
 var config *eqemuconfig.Config
@@ -61,7 +64,8 @@ func GetUpdatesOnIssues(issues []database.Issue) (newIssues []database.Issue, er
 	}
 
 	for _, issue := range issues {
-		newIssue, resp, newErr := client.Issues.Get(config.Github.RepoUser, config.Github.RepoName, issue.DB.Github_issue_id)
+
+		newIssue, resp, newErr := client.Issues.Get(context.Background(), config.Github.RepoUser, config.Github.RepoName, issue.DB.Github_issue_id)
 		if newErr != nil {
 			fmt.Println(resp)
 			err = fmt.Errorf("Failed to request issues: %s", newErr.Error())
@@ -136,7 +140,7 @@ func CreateIssues(issues []database.Issue) (newIssues []database.Issue, err erro
 		}
 		newIssueRequest.Body = &body
 
-		newIssue, resp, newErr := client.Issues.Create(config.Github.RepoUser, config.Github.RepoName, &newIssueRequest)
+		newIssue, resp, newErr := client.Issues.Create(context.Background(), config.Github.RepoUser, config.Github.RepoName, &newIssueRequest)
 		if newErr != nil {
 			fmt.Println(resp)
 			err = fmt.Errorf("Failed to request issues: %s", newErr.Error())
