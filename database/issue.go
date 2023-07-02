@@ -2,10 +2,9 @@ package database
 
 import (
 	gh "github.com/google/go-github/github"
-	"github.com/xackery/goeq/issue"
 )
 
 type Issue struct {
-	DB     issue.Issue
+	DB     *BugReports
 	Github *gh.Issue
 }
