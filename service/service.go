@@ -41,7 +41,7 @@ func Start() (err error) {
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt)
 
-	ticker := time.NewTicker(time.Duration(cfg.CheckFrequencyMinutes) * time.Minute)
+	ticker := time.NewTicker(time.Duration(cfg.PollFrequencyMinutes) * time.Minute)
 
 	err = sync(cfg)
 	if err != nil {
@@ -74,11 +74,13 @@ func sync(cfg *config.Config) error {
 	if err != nil {
 		tlog.Errorf("Failed to get old issues from DB: %s", err.Error())
 	}
-	tlog.Infof("[DB] %d old issues", len(issues))
+	tlog.Infof("[DB] %d old issues needing sync", len(issues))
 
 	//Get any updates from github on previously created issues
 	issues, err = github.SyncUpdatesOnIssues(cfg, issues)
 	if err != nil {
+		// try to sync DB real quick, in case a partial rate limiter failure
+		syncDBWithGithubChanges(cfg, issues)
 		return fmt.Errorf("syncUpdatesOnIssues: %w", err)
 	}
 
@@ -94,14 +96,18 @@ func sync(cfg *config.Config) error {
 		return fmt.Errorf("syncIssuesFromDB: %w", err)
 	}
 
-	tlog.Infof("[DB] %d new issues", len(issues))
+	tlog.Infof("[DB] %d new issues found", len(issues))
 
 	issues, err = github.CreateIssues(cfg, issues)
 	if err != nil {
+		// try to sync DB real quick, in case a partial rate limiter failure
+		syncDBWithGithubChanges(cfg, issues)
 		return fmt.Errorf("createIssues on Github: %w", err)
 	}
 
-	tlog.Infof("[Github] %d added issues", len(issues))
+	if len(issues) > 0 {
+		tlog.Infof("[Github] %d issues created", len(issues))
+	}
 
 	err = syncDBWithGithubChanges(cfg, issues)
 	if err != nil {
@@ -121,7 +127,7 @@ func syncIssuesFromDB(cfg *config.Config, isNewIssue bool) ([]database.Issue, er
 	}
 	defer db.Close()
 
-	query := `SELECT * FROM bug_reports WHERE github_issue_id != 0 AND bug_status = 0`
+	query := fmt.Sprintf("SELECT * FROM bug_reports WHERE github_issue_id != 0 AND bug_status = 0 AND github_sync_datetime < DATE_SUB(NOW(), INTERVAL %d MINUTE)", cfg.SyncFrequencyMinutes)
 	if isNewIssue {
 		query = `SELECT * FROM bug_reports WHERE github_issue_id = 0 AND bug_status = 0`
 	}
@@ -157,7 +163,12 @@ func syncDBWithGithubChanges(cfg *config.Config, addedIssues []database.Issue) e
 			isFixed = 1
 		}
 
-		_, err = db.Exec("UPDATE bug_reports SET github_issue_id = ?, bug_status = ? WHERE id = ?", *issue.Github.Number, isFixed, issue.DB.ID)
+		if *issue.Github.Number == 0 {
+			// no need to update unsynced issues on rate limiter situations
+			continue
+		}
+
+		_, err = db.Exec("UPDATE bug_reports SET github_issue_id = ?, bug_status = ?, github_sync_datetime = current_timestamp() WHERE id = ?", *issue.Github.Number, isFixed, issue.DB.ID)
 		if err != nil {
 			return fmt.Errorf("update %d: %w", issue.DB.ID, err)
 		}
@@ -172,13 +183,13 @@ func prepDatabase(cfg *config.Config) error {
 	}
 	defer db.Close()
 
-	_, err = db.Exec(`ALTER TABLE bug_reports ADD github_issue_id int(11) unsigned NOT NULL DEFAULT 0`)
+	_, err = db.Exec(`ALTER TABLE bug_reports ADD COLUMN (github_issue_id int(11) unsigned NOT NULL DEFAULT 0, github_sync_datetime datetime NOT NULL DEFAULT current_timestamp())`)
 	if err != nil {
 		if strings.Contains(err.Error(), "Duplicate column name 'github_issue_id'") {
 			return nil
 		}
 		return fmt.Errorf("alter table: %w", err)
 	}
-	tlog.Infof("Successfully added github_issue_id column to bug_reports table")
+	tlog.Infof("Successfully added github_issue_id and github_sync_datetime columns to bug_reports table")
 	return nil
 }

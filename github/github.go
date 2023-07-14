@@ -6,6 +6,7 @@ import (
 
 	gh "github.com/google/go-github/github"
 	"github.com/xackery/githubeq/database"
+	"github.com/xackery/githubeq/tlog"
 
 	"time"
 
@@ -42,26 +43,27 @@ func Client(cfg *config.Config) (client *gh.Client, err error) {
 }
 
 func SyncUpdatesOnIssues(cfg *config.Config, issues []database.Issue) (newIssues []database.Issue, err error) {
-
 	client, err := Client(cfg)
 	if err != nil {
 		return
 	}
 
-	for _, issue := range issues {
+	limit, resp, err := client.RateLimits(context.Background())
+	if err != nil {
+		return nil, fmt.Errorf("ratelimits: %s: %w", resp, err)
+	}
+	tlog.Infof("[Github] ratelimit before sync: %d/%d, resets in %0.2f minutes", limit.Core.Remaining, limit.Core.Limit, time.Until(limit.Core.Reset.Time).Minutes())
 
+	for _, issue := range issues {
 		newIssue, resp, err := client.Issues.Get(context.Background(), cfg.Github.User, cfg.Github.Repository, issue.DB.GithubIssueID)
 		if err != nil {
 			return nil, fmt.Errorf("issues get: %s: %w", resp, err)
 		}
 
-		if newIssue.UpdatedAt.Before(issue.DB.LastReview) {
-			continue
-		}
-
 		issue.Github = newIssue
 		newIssues = append(newIssues, issue)
 	}
+
 	return
 }
 
@@ -118,5 +120,11 @@ func CreateIssues(cfg *config.Config, issues []database.Issue) (newIssues []data
 		issue.Github = newIssue
 		newIssues = append(newIssues, issue)
 	}
+
+	limit, resp, err := client.RateLimits(context.Background())
+	if err != nil {
+		return nil, fmt.Errorf("ratelimits: %s: %w", resp, err)
+	}
+	tlog.Infof("[Github] ratelimit after sync: %d/%d, resets in %0.2f minutes", limit.Core.Remaining, limit.Core.Limit, time.Until(limit.Core.Reset.Time).Minutes())
 	return
 }
