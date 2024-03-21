@@ -15,22 +15,13 @@ type Config struct {
 	Debug                bool `toml:"debug" desc:"GithubEQ Configuration\n\n# Debug messages are displayed. This will cause console to be more verbose, but also more informative"`
 	PollFrequencyMinutes int  `toml:"check_frequency_minutes" desc:"How often should the db be checked for bugs to sync."`
 	SyncFrequencyMinutes int  `toml:"sync_frequency_minutes" desc:"How often should stale bugs/issues be checked for state changes."`
-	Database             ConfigDatabase
 	Github               ConfigGithub
-}
-
-type ConfigDatabase struct {
-	Host     string `toml:"host" desc:"Database host"`
-	Port     int    `toml:"port" desc:"Database port"`
-	Username string `toml:"username" desc:"Database username"`
-	Password string `toml:"password" desc:"Database password"`
-	Database string `toml:"database" desc:"Database name"`
 }
 
 type ConfigGithub struct {
 	PersonalAccessToken string `toml:"personal_access_token" desc:"Personal access token for github"`
-	Repository          string `toml:"repository" desc:"Repository name, e.g. githubeq in xackery/githubeq"`
-	User                string `toml:"user" desc:"User name the repo is in, e.g. xackery in xackery/githubeq"`
+	Repository          string `toml:"repository" desc:"Repository name, e.g. githubeq in jamfesteq/githubeq"`
+	User                string `toml:"user" desc:"User name the repo is in, e.g. jamfesteq in jamfesteq/githubeq"`
 	CharacterLabel      string `toml:"character_label" desc:"Label to use for character"`
 	NPCLabel            string `toml:"npc_label" desc:"Label to use for npc"`
 	ItemLabel           string `toml:"item_label" desc:"Label to use for item"`
@@ -117,12 +108,5 @@ func getDefaultConfig() Config {
 		SyncFrequencyMinutes: 60,
 	}
 
-	cfg.Database = ConfigDatabase{
-		Host:     "127.0.0.1",
-		Username: "eqemu",
-		Password: "eqemu",
-		Database: "peq",
-		Port:     3306,
-	}
 	return cfg
 }
