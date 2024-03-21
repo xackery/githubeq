@@ -1,8 +1,24 @@
 ## Github EQ
 
-Creates a new command `#issue` in EverQuest that players can use as a "fast way to give feedback".
+Creates a new command `#issue` in EverQuest that players can use as a "fast way to give feedback". Think of it like a minidump, snapshotting a player's cursor, target, zone data, inventory, at the moment they send the command. 
 
 Usage: `#issue <msg that can be as long as desired>`
+
+### What does it look like?
+
+When someone does #issue in game, it sends the issue to github. No database interactions.
+
+How the issues look:
+![image](https://github.com/xackery/githubeq/assets/845670/53d2d5f4-fa34-4e67-92ef-adf44378b323)
+
+Expanded sections:
+![image](https://github.com/xackery/githubeq/assets/845670/19e685bb-8be3-42bd-872b-815e5b83e12a)
+
+### How does it work?
+
+- On #issue, lua script creates a .txt file in the issues folder on your eqemu dir.
+- Githubeq is a program that every minute by default, grabs each text file, and sends it to github as an issue.
+- You can use projects in github to organize the issues and triage things, with less noise like you get on discord forum bug reports.
 
 ### Installation
 
