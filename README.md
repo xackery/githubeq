@@ -9,10 +9,13 @@ Usage: `#issue <msg that can be as long as desired>`
 When someone does #issue in game, it sends the issue to github. No database interactions.
 
 How the issues look:
-![image](https://github.com/xackery/githubeq/assets/845670/53d2d5f4-fa34-4e67-92ef-adf44378b323)
+
+<img src="https://github.com/xackery/githubeq/assets/845670/53d2d5f4-fa34-4e67-92ef-adf44378b323" width="200">
+
 
 Expanded sections:
-![image](https://github.com/xackery/githubeq/assets/845670/19e685bb-8be3-42bd-872b-815e5b83e12a)
+
+<img src="https://github.com/xackery/githubeq/assets/845670/19e685bb-8be3-42bd-872b-815e5b83e12a" width="200">
 
 ### How does it work?
 
