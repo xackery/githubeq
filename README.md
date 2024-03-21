@@ -6,7 +6,7 @@ Usage: `#issue <msg that can be as long as desired>`
 
 ### Installation
 
-1. Go to the [releases page](https://github.com/xackery/githubeq/releases)
+1. Go to the [releases page](https://github.com/xackery/githubeq/releases) or click links in instructions below.
 1. Download [githubeq-linux](https://github.com/xackery/githubeq/releases/latest/download/githubeq-linux) or [githubeq-windows.exe](https://github.com/xackery/githubeq/releases/latest/download/githubeq-windows.exe) based on your OS, place it in the root of your eqemu folder. (Ideally below quests)
 1. Run githubeq. It will exit and generate a githubeq.conf file.
 1. Create a personal access token:
