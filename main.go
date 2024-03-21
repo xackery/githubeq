@@ -45,6 +45,7 @@ func run() error {
 	}
 	tlog.Infof("Starting GithubEQ %s", Version)
 
+
 	err := os.MkdirAll("issues", 0755)
 	if err != nil {
 		return fmt.Errorf("mkdir: %w", err)
@@ -61,7 +62,7 @@ func run() error {
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt)
 
-	ticker := time.NewTicker(time.Duration(cfg.PollFrequencyMinutes) * time.Minute)
+	ticker := time.NewTicker(time.Duration(cfg.SyncFrequencyMinutes) * time.Minute)
 
 	err = generate()
 	if err != nil {

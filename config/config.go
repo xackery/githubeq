@@ -13,7 +13,6 @@ import (
 // Config represents a configuration parse
 type Config struct {
 	Debug                bool `toml:"debug" desc:"GithubEQ Configuration\n\n# Debug messages are displayed. This will cause console to be more verbose, but also more informative"`
-	PollFrequencyMinutes int  `toml:"check_frequency_minutes" desc:"How often should the db be checked for bugs to sync."`
 	SyncFrequencyMinutes int  `toml:"sync_frequency_minutes" desc:"How often should stale bugs/issues be checked for state changes."`
 	Github               ConfigGithub
 }
@@ -94,8 +93,8 @@ func NewConfig(ctx context.Context) (*Config, error) {
 
 // Verify returns an error if configuration appears off
 func (c *Config) Verify() error {
-	if c.PollFrequencyMinutes < 1 {
-		c.PollFrequencyMinutes = 1
+	if c.SyncFrequencyMinutes < 1 {
+		c.SyncFrequencyMinutes = 1
 	}
 
 	return nil
@@ -104,8 +103,7 @@ func (c *Config) Verify() error {
 func getDefaultConfig() Config {
 	cfg := Config{
 		Debug:                true,
-		PollFrequencyMinutes: 10,
-		SyncFrequencyMinutes: 60,
+		SyncFrequencyMinutes: 1,
 	}
 
 	return cfg
