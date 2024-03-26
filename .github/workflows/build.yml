@@ -20,4 +20,4 @@ jobs:
             bin/githubeq-linux
             bin/githubeq-windows.exe
             bin/githubeq-darwin
-            lua/issue.lua
+            lua/register_bug.lua

@@ -1,31 +1,15 @@
---- @param e PlayerEventCommand
-local function issue(e)
-    if #e.args < 2 then
-        e.self:Message(MT.White, "usage: #issue <msg> - Items held, mobs targetted, are all included in the issue report");
-        return
-    end
-
+---@param e ModRegisterBug
+function RegisterBug(e)
+    local msg = ""
     local client = e.self
-
-    local msg = client:AccountName() .. "\n"
-    tags = ""
     local inv = client:GetInventory()
 
+    msg = msg .. "-------\n"
+    msg = msg .. "message\n"
+    msg = e.bug_report .. "\n"
 
-    if inv:GetItem(Slot.Cursor).valid then
-        tags = tags .. "item,"
-    end
-
-    if client:GetTarget().valid then
-        tags = tags .. "target,"
-    end
-
-    if tags == "" then
-        tags = "none"
-    end
-
-    msg = msg .. tags .. "\n"
-    msg = msg .. table.concat(e.args, " ", 1) .. "\n";
+    msg = msg .. "-------\n"
+    msg = msg .. "preview\n"
 
     msg = msg .. "Cursor: "
     if inv:GetItem(Slot.Cursor).valid then
@@ -34,18 +18,38 @@ local function issue(e)
         msg = string.format("%snone\n", msg)
     end
 
-    msg = msg .. "Target: "
-    if client:GetTarget().valid then
-        msg = string.format("%s%s (%d)\n", msg, client:GetTarget():GetName(), client:GetTarget():GetID())
-    else
-        msg = string.format("%snone\n", msg)
-    end
-
-    msg = msg .. string.format("Location: `#zone %s %d %d %d`\n", eq.get_zone_id(),  client:GetX() , client:GetY() , client:GetZ())
-
+    msg = msg .. string.format("Location: `#zone %s %d %d %d`\n", e.zone,  client:GetX() , client:GetY() , client:GetZ())
 
     msg = msg .. "-------\n"
+    msg = msg .. "bug info\n"
 
+    msg = msg .. "zone: " .. e.zone .. "\n"
+    msg = msg .. "client_version_id: " .. e.client_version_id .. "\n"
+    msg = msg .. "client_version_name: " .. e.client_version_name .. "\n"
+    msg = msg .. "account_id: " .. e.account_id .. "\n"
+    msg = msg .. "character_id: " .. e.character_id .. "\n"
+    msg = msg .. "character_name: " .. e.character_name .. "\n"
+    msg = msg .. "reporter_spoof: " .. e.reporter_spoof .. "\n"
+    msg = msg .. "category_id: " .. e.category_id .. "\n"
+    msg = msg .. "category_name: " .. e.category_name .. "\n"
+    msg = msg .. "reporter_name: " .. e.reporter_name .. "\n"
+    msg = msg .. "ui_path: " .. e.ui_path .. "\n"
+    msg = msg .. "pos_x: " .. e.pos_x .. "\n"
+    msg = msg .. "pos_y: " .. e.pos_y .. "\n"
+    msg = msg .. "pos_z: " .. e.pos_z .. "\n"
+    msg = msg .. "heading: " .. e.heading .. "\n"
+    msg = msg .. "time_played: " .. e.time_played .. "\n"
+    msg = msg .. "target_id: " .. e.target_id .. "\n"
+    msg = msg .. "target_name: " .. e.target_name .. "\n"
+    msg = msg .. "optional_info_mask: " .. e.optional_info_mask .. "\n"
+    msg = msg .. "_can_duplicate: " .. e._can_duplicate .. "\n"
+    msg = msg .. "_crash_bug: " .. e._crash_bug .. "\n"
+    msg = msg .. "_target_info: " .. e._target_info .. "\n"
+    msg = msg .. "_character_flags: " .. e._character_flags .. "\n"
+    msg = msg .. "_unknown_value: " .. e._unknown_value .. "\n"
+    msg = msg .. "system_info: " .. e.system_info .. "\n"
+
+    msg = msg .. "-------\n"
     msg = msg .. "character info\n"
 
     msg = msg .. string.format("Name: %s\n", client:GetName())
@@ -53,7 +57,6 @@ local function issue(e)
     msg = msg .. string.format("Time: %s\n", os.date())
     msg = msg .. string.format("Level: %d\n", client:GetLevel())
     msg = msg .. string.format("Class: %s\n", client:GetClass())
-
 
     msg = msg .. "-------\n"
 
@@ -166,14 +169,13 @@ local function issue(e)
         e.self:Message(MT.White, "failed writing issue: " .. err);
         return
     end
-    
+    --file:write(e.self:GetName() .. " - " .. e.self:GetAccountName() .. " - " .. e.self:GetIP() .. " - " .. os.date() .. " - " .. msg .. "\n");
     local isClosed, _, code = w:close();
     if not isClosed then
         e.self:Message(MT.White, "Error closing issue file: " .. code);
         return
     end
 
-    e.self:Message(MT.White, "Issue created successfully. Thanks for the report!");
+    e.IgnoreDefault = true
+    return e
 end
-
-return issue;

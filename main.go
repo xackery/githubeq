@@ -15,14 +15,16 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// Version is the version of the application
 var Version string
 var cfg *config.Config
-var authClient *gh.Client
 
+// TokenSource is a custom oauth2.TokenSource
 type TokenSource struct {
 	AccessToken string
 }
 
+// Token returns a new oauth2.Token
 func (t *TokenSource) Token() (*oauth2.Token, error) {
 	token := &oauth2.Token{
 		AccessToken: t.AccessToken,
@@ -44,7 +46,6 @@ func run() error {
 		Version = "1.x.x EXPERIMENTAL"
 	}
 	tlog.Infof("Starting GithubEQ %s", Version)
-
 
 	err := os.MkdirAll("issues", 0755)
 	if err != nil {
@@ -125,79 +126,87 @@ func createIssue(data string) error {
 	newIssueRequest := gh.IssueRequest{}
 	newIssueRequest.Labels = &[]string{}
 
-	offset := strings.Index(data, "\n")
+	offset := strings.Index(data, "-------\n")
 	if offset == -1 {
-		return fmt.Errorf("author offset: -1")
+		return fmt.Errorf("message offset: -1")
 	}
-	author := data[:offset]
-	data = data[offset+1:]
+	msg := data[0:offset]
+	data = data[offset:]
 
-	offset = strings.Index(data, "\n")
+	offset = strings.Index(msg, "\n")
 	if offset == -1 {
-		return fmt.Errorf("tags offset: -1")
+		return fmt.Errorf("title offset -1")
 	}
-	tagData := data[:offset]
-	data = data[offset+1:]
-
-	tags := strings.Split(tagData, ",")
-
-	offset = strings.Index(data, "\n")
-	if offset == -1 {
-		return fmt.Errorf("msg offset: -1")
-	}
-	title := data[:offset]
-	body := title + "\n"
-	data = data[offset+1:]
+	title := msg[:offset]
 	if len(title) > 25 {
 		title = title[:25] + "..."
 	}
-	title = fmt.Sprintf("[%s] %s", author, title)
+
+	author := ""
+	category := ""
+	body := msg
+
+	for {
+		offset = strings.Index(data, "-------\n")
+		if offset == -1 {
+			break
+		}
+		data = data[offset+8:]
+		offset = strings.Index(data, "\n")
+		if offset == -1 {
+			break
+		}
+		label := data[:offset]
+		data = data[offset+1:]
+
+		offset = strings.Index(data, "-------\n")
+		if offset == -1 {
+			offset = len(data)
+		}
+
+		content := data[0:offset]
+
+		if label == "preview" {
+			body += content
+			data = data[offset:]
+			continue
+		}
+
+		body += "<details>\n"
+		body += fmt.Sprintf("<summary>%s</summary>\n", label)
+
+		if label == "bug info" {
+			lines := strings.Split(content, "\n")
+			for _, line := range lines {
+				if strings.HasPrefix(line, "category_name: ") {
+					category = strings.TrimSpace(line[14:])
+				}
+			}
+		}
+		if label == "character info" {
+			lines := strings.Split(content, "\n")
+			for _, line := range lines {
+				if strings.HasPrefix(line, "Account: ") {
+					author = strings.TrimSpace(line[9:])
+				}
+			}
+		}
+
+		body += strings.ReplaceAll(content, "\n", "<br>\n")
+		body += "</details>\n"
+
+		data = data[offset:]
+	}
+
+	title = fmt.Sprintf("[%s %s] %s", category, author, title)
+	if len(title) > 60 {
+		title = title[:60] + "..."
+	}
+
+	fmt.Println("title:", title)
+	fmt.Println("body:", body)
+	os.Exit(1)
 	newIssueRequest.Title = &title
-	if len(tags) > 0 {
-
-	}
-	//	*newIssueRequest.Labels = append(*newIssueRequest.Labels, tags...)
-
-	offset = strings.Index(data, "-------\n")
-	if offset == -1 {
-		return fmt.Errorf("dataBody offset -1")
-	}
-
-	body += strings.ReplaceAll(data[0:offset], "\n", "<br>\n") + "\n"
-	data = data[offset+8:]
-
-	body += "<details>\n<summary>"
-	offset = strings.Index(data, "\n")
-	if offset == -1 {
-		return fmt.Errorf("charInfo offset -1")
-	}
-	charInfo := data[:offset]
-	body += charInfo
-	body += "</summary>\n"
-	data = data[offset+1:]
-
-	offset = strings.Index(data, "-------\n")
-	if offset == -1 {
-		return fmt.Errorf("dataInventory offset -1")
-	}
-	body += strings.ReplaceAll(data[0:offset], "\n", "<br>\n") + "\n"
-	body += "</details>\n"
-	data = data[offset+8:]
-
-	offset = strings.Index(data, "\n")
-	if offset == -1 {
-		return fmt.Errorf("inventory offset -1")
-	}
-	inventory := data[:offset]
-	body += "<details>\n<summary>"
-	body += inventory
-	body += "</summary>\n"
-	body += strings.ReplaceAll(data[offset+1:], "\n", "<br>\n") + "\n"
-	body += "</details>\n"
-
-	// fmt.Println("title:", title)
-	// fmt.Println("tags:", tags)
-	// fmt.Println("body:", body)
 	newIssueRequest.Body = &body
 
 	client := gh.NewClient(nil).WithAuthToken(cfg.Github.PersonalAccessToken)

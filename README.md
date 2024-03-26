@@ -1,17 +1,14 @@
 ## Github EQ
 
-Creates a new command `#issue` in EverQuest that players can use as a "fast way to give feedback". Think of it like a minidump, snapshotting a player's cursor, target, zone data, inventory, at the moment they send the command. 
-
-Usage: `#issue <msg that can be as long as desired>`
+Uses a lua mod to redirect /bug reports to github issues.
 
 ### What does it look like?
 
-When someone does #issue in game, it sends the issue to github. No database interactions.
+When someone does a /bug in game, it sends the issue to github. No database interactions.
 
 How the issues look:
 
 <img src="https://github.com/xackery/githubeq/assets/845670/53d2d5f4-fa34-4e67-92ef-adf44378b323" width="200">
-
 
 Expanded sections:
 
@@ -19,12 +16,14 @@ Expanded sections:
 
 ### How does it work?
 
-- On #issue, lua script creates a .txt file in the issues folder on your eqemu dir.
-- Githubeq is a program that every minute by default, grabs each text file, and sends it to github as an issue.
-- You can use projects in github to organize the issues and triage things, with less noise like you get on discord forum bug reports.
+- On /bug, a lua mod is fired and overrides the default behavior of in game #bugs.
+- The lua mod creates a .txt file in the issues folder on your eqemu dir.
+- Githubeq is a program that every minute by default, iteartes txt files in issues, and sends it to github as an issue. It then deletes the .txt file.
+- You can then use projects in github to organize the issues and triage things, with less noise like you get on discord forum bug reports.
 
 ### Installation
 
+1. *NOTE* eqemu has not yet added [a PR](https://github.com/EQEmu/Server/pull/4209) that adds support for this. Once it is added, you'll need to wait for a release from eqemu and update your binaries to obtain it.
 1. Go to the [releases page](https://github.com/xackery/githubeq/releases) or click links in instructions below.
 1. Download [githubeq-linux](https://github.com/xackery/githubeq/releases/latest/download/githubeq-linux) or [githubeq-windows.exe](https://github.com/xackery/githubeq/releases/latest/download/githubeq-windows.exe) based on your OS, place it in the root of your eqemu folder. (Ideally below quests)
 1. Run githubeq. It will exit and generate a githubeq.conf file.
@@ -42,9 +41,10 @@ Expanded sections:
 1. Add repository and user based on what the token was used, e.g. user: xackery, repository: githubeq would be for this repository.
 1. Run githubeq again. It should now work and go idle.
 1. Check if githubeq made an `issues` folder. This is where the issues in lua should generate at.
-1. Download [issue.lua](https://github.com/xackery/githubeq/releases/latest/download/issue.lua) and place it in your `quests/lua_modules/commands` folder.
-1. Edit your `quests/lua_modules/command.lua` file and add the following line to the below the other 4 or 5 commands: `commands["issue"] 	  = { 0,   require(commands_path .. "issue") };`
+1. Download [register_bug.lua](https://github.com/xackery/githubeq/releases/latest/download/register_bug.lua) and place it in your `mods` folder, which should be in your eqemu root.
+1. Create a file called `mods/load_order.txt` if it doesn't already exist.
+1. Edit `mods/load_order.txt` and add `register_bug.lua` to the bottom of the file.
 1. Go in game and type `#rq` to reload quests.
-1. Type `#issue Hello GithubEQ!` in game and you should get a message your issue is submitted.
-1. By default, check_frequency_minutes is set to 1, meaning every minute it'll look for issues in the issues folder, and push them to your github Issues page. Wait 60 seconds and verify all is okay.
-
+1. Type `/bug` in game and create an issue.
+1. Peek at githubeq's output after ~60s and you should see if it picked up the file.
+1. Check if issues in your repository is populated with your new issue.

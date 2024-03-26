@@ -1,3 +1,4 @@
 *.conf
 bin/
 issues/
+coverage.out
