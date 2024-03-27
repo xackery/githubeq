@@ -48,3 +48,29 @@ Expanded sections:
 1. Type `/bug` in game and create an issue.
 1. Peek at githubeq's output after ~60s and you should see if it picked up the file.
 1. Check if issues in your repository is populated with your new issue.
+
+### Label Configuration
+
+You'll find in the githubeq.conf entries for labels.
+
+While a description is provided, let me break it down even more here:
+
+- bug_label will be applied to all /bug reports, if not empty
+- fallback_label will be used if no label is set for a provided label
+- the remaining labels are from the dropdown category in game. In my case, which is totally optional, I group them into this subset:
+
+Other - bug
+Video - bug
+Audio - bug
+Pathing - npc
+Quest - quest
+Tradeskills - tradeskills
+Spell stacking - spell
+Doors/Portals - zone
+Items - items
+NPC - npc
+Dialogs - npc
+LoN - TCG - bug
+Mercenaries - bug
+
+To use the above, I create each label in the labels section in github issues. Then I add the label name to the githubeq.conf file 1 to 1 with how it's worded.

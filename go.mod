@@ -4,7 +4,7 @@ go 1.21.5
 
 require (
 	github.com/google/go-github/v60 v60.0.0
-	github.com/jbsmith7741/toml v0.3.0
+	github.com/jbsmith7741/toml v0.3.1-0.20171003150610-484e047de162
 	github.com/rs/zerolog v1.32.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/oauth2 v0.18.0

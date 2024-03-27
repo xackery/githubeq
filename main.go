@@ -203,16 +203,19 @@ func createIssue(data string) error {
 		title = title[:60] + "..."
 	}
 
-	label := labelByCategory(category)
-	if label != "" {
-		newIssueRequest.Labels = &[]string{label}
+	labels := []string{}
+	if cfg.Github.BugLabel != "" {
+		labels = append(labels, cfg.Github.BugLabel)
 	}
 
-	fmt.Println("title:", title)
-	fmt.Println("body:", body)
-	os.Exit(1)
+	label := labelByCategory(category)
+	if label != "" && label != cfg.Github.BugLabel {
+		labels = append(labels, label)
+	}
+
 	newIssueRequest.Title = &title
 	newIssueRequest.Body = &body
+	newIssueRequest.Labels = &labels
 
 	client := gh.NewClient(nil).WithAuthToken(cfg.Github.PersonalAccessToken)
 
@@ -256,6 +259,9 @@ func labelByCategory(category string) string {
 	label, ok := labels[category]
 	if !ok {
 		label = cfg.Github.FallbackLabel
+	}
+	if label == "" {
+		return cfg.Github.FallbackLabel
 	}
 
 	return label
