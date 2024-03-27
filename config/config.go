@@ -21,9 +21,20 @@ type ConfigGithub struct {
 	PersonalAccessToken string `toml:"personal_access_token" desc:"Personal access token for github"`
 	Repository          string `toml:"repository" desc:"Repository name, e.g. githubeq in jamfesteq/githubeq"`
 	User                string `toml:"user" desc:"User name the repo is in, e.g. jamfesteq in jamfesteq/githubeq"`
-	CharacterLabel      string `toml:"character_label" desc:"Label to use for character"`
-	NPCLabel            string `toml:"npc_label" desc:"Label to use for npc"`
-	ItemLabel           string `toml:"item_label" desc:"Label to use for item"`
+	FallbackLabel       string `toml:"fallback_label" desc:"Label to use if no other label is found"`
+	OtherLabel          string `toml:"other_label" desc:"Label to use for bugs with other report"`
+	VideoLabel          string `toml:"video_label" desc:"Label to use for bugs with video report"`
+	AudioLabel          string `toml:"audio_label" desc:"Label to use for bugs with audio report"`
+	PathingLabel        string `toml:"pathing_label" desc:"Label to use for bugs with pathing report"`
+	QuestLabel          string `toml:"quest_label" desc:"Label to use for bugs with quest report"`
+	TradeskillsLabel    string `toml:"tradeskills_label" desc:"Label to use for bugs with tradeskills report"`
+	SpellStackingLabel  string `toml:"spell_stacking_label" desc:"Label to use for bugs with spell stacking report"`
+	DoorsPortalLabel    string `toml:"doors_portal_label" desc:"Label to use for bugs with doors/portal report"`
+	ItemsLabel          string `toml:"items_label" desc:"Label to use for bugs with items report"`
+	NPCLabel            string `toml:"npc_label" desc:"Label to use for bugs with npc report"`
+	DialogsLabel        string `toml:"dialogs_label" desc:"Label to use for bugs with dialogs report"`
+	LoNLabel            string `toml:"lon_label" desc:"Label to use for bugs with LoN report"`
+	MercenariesLabel    string `toml:"mercenaries_label" desc:"Label to use for bugs with mercenaries report"`
 }
 
 // NewConfig creates a new configuration

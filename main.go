@@ -198,9 +198,14 @@ func createIssue(data string) error {
 		data = data[offset:]
 	}
 
-	title = fmt.Sprintf("[%s %s] %s", category, author, title)
+	title = fmt.Sprintf("[%s] %s", author, title)
 	if len(title) > 60 {
 		title = title[:60] + "..."
+	}
+
+	label := labelByCategory(category)
+	if label != "" {
+		newIssueRequest.Labels = &[]string{label}
 	}
 
 	fmt.Println("title:", title)
@@ -229,4 +234,29 @@ func createIssue(data string) error {
 	}
 
 	return nil
+}
+
+func labelByCategory(category string) string {
+	labels := map[string]string{
+		"Other":          cfg.Github.OtherLabel,
+		"Video":          cfg.Github.VideoLabel,
+		"Audio":          cfg.Github.AudioLabel,
+		"Pathing":        cfg.Github.PathingLabel,
+		"Quest":          cfg.Github.QuestLabel,
+		"Tradeskills":    cfg.Github.TradeskillsLabel,
+		"Spell Stacking": cfg.Github.SpellStackingLabel,
+		"Doors/Portal":   cfg.Github.DoorsPortalLabel,
+		"Items":          cfg.Github.ItemsLabel,
+		"NPC":            cfg.Github.NPCLabel,
+		"Dialogs":        cfg.Github.DialogsLabel,
+		"LoN - TCG":      cfg.Github.LoNLabel,
+		"Mercenaries":    cfg.Github.MercenariesLabel,
+	}
+
+	label, ok := labels[category]
+	if !ok {
+		label = cfg.Github.FallbackLabel
+	}
+
+	return label
 }
