@@ -122,7 +122,6 @@ func generate() error {
 }
 
 func createIssue(data string) error {
-
 	newIssueRequest := gh.IssueRequest{}
 	newIssueRequest.Labels = &[]string{}
 
