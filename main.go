@@ -137,8 +137,8 @@ func createIssue(data string) error {
 		return fmt.Errorf("title offset -1")
 	}
 	title := msg[:offset]
-	if len(title) > 25 {
-		title = title[:25] + "..."
+	if len(title) > 65 {
+		title = title[:65] + "..."
 	}
 
 	author := ""
